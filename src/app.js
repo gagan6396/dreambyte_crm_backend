@@ -1,30 +1,43 @@
-const express = require("express");
-const cors = require("cors");
-
-const employeeRoutes = require("./routes/employeedashboard/index");
+const express = require('express');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const connectDB = require('./config/db');
+require('dotenv').config();
 
 const app = express();
 
-// Middlewares
-app.use(
-  cors({
-    origin: "http://localhost:3000",
-    credentials: true,
-  })
-);
+// Connect to MongoDB
+connectDB();
+
+// ── Middlewares ─────────────────────────────────────────────────────────────
+// cookieParser MUST come before routes so req.cookies is populated
+app.use(cookieParser());
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true,         // allows cookies to be sent cross-origin
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health Check
-app.get("/", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "API is running...",
-  });
+// ── Health check ────────────────────────────────────────────────────────────
+app.get('/', (req, res) => {
+  res.status(200).json({ success: true, message: 'API is running...' });
 });
 
+// ── API Routes ───────────────────────────────────────────────────────────────
+app.use('/api/employee', require('./routes/employeedashboard/index'));
+// app.use('/api/admin',    require('./routes/admindashboard/index'));
+// app.use('/api/superadmin', require('./routes/superadmindashboard/index'));
 
-// API Routes
-app.use("/api", employeeRoutes);
+// ── 404 handler ─────────────────────────────────────────────────────────────
+app.use((req, res) => {
+  res.status(404).json({ message: `Route ${req.originalUrl} not found` });
+});
+
+// ── Global error handler ─────────────────────────────────────────────────────
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Something went wrong', error: err.message });
+});
 
 module.exports = app;
