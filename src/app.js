@@ -2,10 +2,10 @@ const express = require("express");
 const cors = require("cors");
 
 const employeeRoutes = require("./routes/employeedashboard/index");
+const superAdminRoutes = require("./routes/superadmindashboard/index");
 
 const app = express();
 
-// Middlewares
 app.use(
   cors({
     origin: "http://localhost:3000",
@@ -15,16 +15,16 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health Check
 app.get("/", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "API is running...",
-  });
+  res.status(200).json({ success: true, message: "API is running..." });
 });
 
+// superAdminRoutes PEHLE — no auth middleware inside
+// Covers: /api/brands, /api/employees, /api/tasks
+app.use("/api", superAdminRoutes);
 
-// API Routes
-app.use("/api", employeeRoutes);
+// employeeRoutes BAAD — has auth middleware inside individual route files
+// Covers: /api/auth, /api/tasks (employee), /api/stats
+app.use("/api/employee", employeeRoutes);
 
 module.exports = app;
