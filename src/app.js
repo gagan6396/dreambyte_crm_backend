@@ -6,16 +6,19 @@ require('dotenv').config();
 
 const app = express();
 
-app.use(
-  cors({
-   origin: true,
-    credentials: true,
-  })
-);
+// ── Connect DB ────────────────────────────────────────────────────────────────
+connectDB();
+
+// ── Middlewares ───────────────────────────────────────────────────────────────
+app.use(cookieParser()); // MUST be before routes so req.cookies is populated
+app.use(cors({
+  origin: true,
+  credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ── Health check ─────────────────────────────────────────────────────────────
+// ── Health check ──────────────────────────────────────────────────────────────
 app.get('/', (req, res) => {
   res.status(200).json({ success: true, message: 'API is running...' });
 });
@@ -23,7 +26,7 @@ app.get('/', (req, res) => {
 // ── API Routes ────────────────────────────────────────────────────────────────
 app.use('/api/employee',   require('./routes/employeedashboard/index'));
 app.use('/api/superadmin', require('./routes/superadmindashboard/index'));
-// app.use('/api/admin',   require('./routes/admindashboard/index'));  // add when ready
+// app.use('/api/admin',   require('./routes/admindashboard/index'));
 
 // ── 404 ───────────────────────────────────────────────────────────────────────
 app.use((req, res) => {
