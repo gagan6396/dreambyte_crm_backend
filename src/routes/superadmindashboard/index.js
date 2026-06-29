@@ -10,3 +10,11 @@ router.use("/employees", employeeRoutes);
 router.use("/tasks", taskRoutes);
 
 module.exports = router;
+
+
+
+
+router.use('/auth', require('./auth.routes'));
+// router.use('/employees', require('./employee.routes'));  // add later
+// router.use('/stats',     require('./stats.routes'));     // add later
+
